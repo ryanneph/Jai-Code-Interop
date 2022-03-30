@@ -1,7 +1,7 @@
 #import "Basic";
 
 //
-// Assembly function definitions
+// External (foreign) function definitions
 //
 asm_add :: (a: s32, b: s32) -> s32 #c_call #foreign libasm;
 cpp_add :: (a: s32, b: s32) -> s32 #c_call #foreign libcpp;
@@ -15,12 +15,12 @@ libcpp :: #foreign_library,no_dll "build_output/libcpp";
 
 main :: () {
    // Call asm function from jai
-   a: s32 = 35;
-   b: s32 = 85;
+   a: s32 = 23;
+   b: s32 = 83;
    c := asm_add(a, b);
    print("jai: asm did % + % = %\n", a, b, c);
 
-   // Call cpp function from jai
+   // Call C function from jai
    c2 := cpp_add(a, b);
    print("jai: cpp did % + % = %\n", a, b, c2);
 }
