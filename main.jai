@@ -4,20 +4,23 @@
 // Assembly function definitions
 //
 asm_add :: (a: s32, b: s32) -> s32 #c_call #foreign libasm;
+cpp_add :: (a: s32, b: s32) -> s32 #c_call #foreign libcpp;
 
 //
 // Define the source of our foreign functions.
 // (no need to provide a path since we use a static library provided during the linking stage)
 //
 libasm :: #foreign_library,no_dll "build_output/libasm";
+libcpp :: #foreign_library,no_dll "build_output/libcpp";
 
 main :: () {
-   print("Hello\n");
-
+   // Call asm function from jai
    a: s32 = 35;
    b: s32 = 85;
-   // NOCHECKIN: getting a segfault. Maybey the calling convention is set differently by jai,
-   // despite having #c_call?
    c := asm_add(a, b);
    print("jai: asm did % + % = %\n", a, b, c);
+
+   // Call cpp function from jai
+   c2 := cpp_add(a, b);
+   print("jai: cpp did % + % = %\n", a, b, c2);
 }
