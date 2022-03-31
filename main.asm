@@ -1,6 +1,4 @@
 section .data
-    str_hello: db "hello from asm-land",10
-    len_hello: equ $-str_hello
     str_prefix: db "asm: "
     len_prefix: equ $-str_prefix
     str_line_feed: db 10
@@ -138,31 +136,9 @@ cpp_add_and_print:
     call print_expression
     ret
 
-jai_add_and_print:
-    ;; call jai_add from our libjai
-    ; print "asm: "
-    mov rsi,str_prefix
-    mov rdx,len_prefix
-    call sys_write
-
-    ; print "jai_did "
-    mov rsi,str_jai_did
-    mov rdx,len_jai_did
-    call sys_write
-
-    ; do a + b
-    mov edi,6
-    mov esi,2
-    ; call jai_add ; TODO
-
-    mov edx,eax
-    call print_expression
-    ret
-
 _start:
     call asm_add_and_print
     call cpp_add_and_print
-    ; call jai_add_and_print ; TODO
 
     ; do exit(error_code)
     mov rax,60 ; exit()
