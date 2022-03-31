@@ -15,6 +15,7 @@ section .text
     global _start
     extern asm_add
     extern cpp_add
+    extern jai_add
 
 sys_write:
     ;; caller provides:
@@ -34,9 +35,9 @@ print_line_feed:
 
 print_char:
     ;; print a single char by its utf-8 codepoint
-    ; rsi - utf-8 codepoint (u8)
+    ; edi/dil - utf-8 codepoint (u8)
     sub rsp,1
-    mov byte [rsp],sil
+    mov byte [rsp],dil
     mov rsi,rsp
     mov rdx,1
     call sys_write
@@ -45,15 +46,79 @@ print_char:
 
 ; TODO: print any u8 - up to 3 digits
 print_single_digit:
-    ; print a number in [0, 9] as char. will choke for numbers out-of-range.
-    ;; caller provides:
-    ; esi - num (u8)
-    add esi,48 ; convert integer result to char
+    ;; print a number in [0, 9] as char. will choke for numbers out-of-range.
+    ; edi - num (s32)
+    add edi,48 ; convert integer result to char
     call print_char
     ret
 
+print_expression:
+    ;; computes "c" and prints a string of the form "a + b = c"
+    ; edi - param "a" (s32)
+    ; esi - param "b" (s32)
+    ; edx - param "c" (s32)
+
+    ; non-volatile registers need to be restored before returning
+    sub rsp,8
+    mov dword [rsp],esi
+    mov dword [rsp+4],edx
+
+    ; print "a"
+    ; "a" already in edi
+    call print_single_digit
+
+    ; print " + "
+    mov edi,32
+    call print_char
+    mov edi,43
+    call print_char
+    mov edi,32
+    call print_char
+
+    ; print "b"
+    mov dword edi,[rsp]
+    call print_single_digit
+
+    ; print " = "
+    mov edi,32
+    call print_char
+    mov edi,61
+    call print_char
+    mov edi,32
+    call print_char
+
+    ; print resulting digit
+    mov edi,[rsp+4]
+    call print_single_digit
+    call print_line_feed
+
+    ; cleanup stack
+    add rsp,8
+    ret
+
+asm_add_and_print:
+    ;; call asm_add from our libasm
+    ; print  "asm: "
+    mov rsi,str_prefix
+    mov rdx,len_prefix
+    call sys_write
+
+    ; print "asm_did "
+    mov rsi,str_asm_did
+    mov rdx,len_asm_did
+    call sys_write
+
+    mov edi,3
+    mov esi,5
+    call asm_add
+
+    mov edx,eax
+    call print_expression
+
+    ret
+
 cpp_add_and_print:
-    ;; call cpp_add from our libc - no params
+    ;; call cpp_add from our libc
     ; print "asm: "
     mov rsi,str_prefix
     mov rdx,len_prefix
@@ -64,59 +129,40 @@ cpp_add_and_print:
     mov rdx,len_cpp_did
     call sys_write
 
-    ; print "4"
-    mov esi,4
-    call print_single_digit
-
-    ; print " + "
-    mov esi,32
-    call print_char
-    mov esi,43
-    call print_char
-    mov esi,32
-    call print_char
-
-    ; print "3"
-    mov esi,3
-    call print_single_digit
-
-    ; print " = "
-    mov esi,32
-    call print_char
-    mov esi,61
-    call print_char
-    mov esi,32
-    call print_char
-
     ; do a + b
-    mov esi,4 ; param "a" (s32)
-    mov esi,3 ; param "b" (s32)
+    mov edi,6
+    mov esi,2
     call cpp_add
 
-    ; print resulting digit
-    mov esi,eax
-    call print_single_digit
-    call print_line_feed
+    mov edx,eax
+    call print_expression
+    ret
+
+jai_add_and_print:
+    ;; call jai_add from our libjai
+    ; print "asm: "
+    mov rsi,str_prefix
+    mov rdx,len_prefix
+    call sys_write
+
+    ; print "jai_did "
+    mov rsi,str_jai_did
+    mov rdx,len_jai_did
+    call sys_write
+
+    ; do a + b
+    mov edi,6
+    mov esi,2
+    ; call jai_add ; TODO
+
+    mov edx,eax
+    call print_expression
     ret
 
 _start:
-    ; issue a write() syscall with a static string
-    mov rsi,str_hello ; str_pointer
-    mov rdx,len_hello ; str_len
-    call sys_write
-
-    ; call function from another translation unit
-    ; add two numbers
-    mov edi,4 ; num1
-    mov esi,3 ; num2
-    call asm_add
-
-    ; build a string containing the digit then print the answer
-    mov esi,eax
-    call print_single_digit
-    call print_line_feed
-
+    call asm_add_and_print
     call cpp_add_and_print
+    ; call jai_add_and_print ; TODO
 
     ; do exit(error_code)
     mov rax,60 ; exit()
