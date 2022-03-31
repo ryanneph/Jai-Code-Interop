@@ -1,5 +1,6 @@
 #import "Basic";
 #import "Compiler";
+#import "String";
 
 build_static_library :: () {
    // create a new workspace to generate a static library
@@ -24,7 +25,6 @@ build_executable :: () {
    options.output_path            = "./build_output/";
    options.output_type            = .EXECUTABLE;
    options.optimization_level     = .DEBUG;
-   // options.additional_linker_arguments = .["-L build_output -llibasm"];
 
    set_build_options(options, executable_builder_workspace);
 
@@ -32,11 +32,27 @@ build_executable :: () {
 }
 
 build :: () {
-   // prevent the default workspace from producing any output
+   // prevent the default workspace from producing any output, since we do so instead
+   // in separate workspaces.
    set_build_options_dc(.{do_output=false});
 
-   build_static_library();
-   build_executable();
+   build_lib := false;
+   build_exe := false;
+
+   args := compiler_get_command_line_arguments();
+   for args {
+      if      !compare(it, "-build-lib")  build_lib = true;
+      else if !compare(it, "-build-exe")  build_exe = true;
+   }
+
+   // default build everything
+   if !build_lib && !build_exe {
+      build_lib = true;
+      build_exe = true;
+   }
+
+   if build_lib  build_static_library();
+   if build_exe  build_executable();
 }
 
 #run build();
