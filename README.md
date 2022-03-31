@@ -10,6 +10,12 @@
 
 Some simple examples that'll help you comingle your code, if you are into that kind of thing.
 
+## Usage
+On most unix-based systems the following _should work<sup>†</sup>_:
+```bash
+./build.sh [test]
+```
+_<sup>†</sup>: must have a jai compiler..._
 ## Contents:
 * `C/C++` executable calling into:
   * static `Jai` library
