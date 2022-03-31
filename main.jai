@@ -7,8 +7,10 @@ asm_add :: (a: s32, b: s32) -> s32 #c_call #foreign libasm;
 cpp_add :: (a: s32, b: s32) -> s32 #c_call #foreign libcpp;
 
 //
-// Define the source of our foreign functions.
-// (no need to provide a path since we use a static library provided during the linking stage)
+// Define the source of our foreign functions. These may be static (.a) or dynamic (.so) but the
+// extension is omitted when using the directive. When static linkage is desired, the ",nodll"
+// suffix is used. When both a static and dynamic lib are available at the same path, the static
+// seems to be preferred, even if ",no_dll" is not used.
 //
 libasm :: #foreign_library,no_dll "build_output/libasm";
 libcpp :: #foreign_library,no_dll "build_output/libcpp";

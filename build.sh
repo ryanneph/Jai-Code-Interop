@@ -10,7 +10,7 @@ mkdir -p $OUT
 # BUILD libasm.a - need to use .a extension to make jai's #foreign_lib happy
 nasm -f elf64 -o $OUT/libasm.a lib.asm
 
-# BUILD libc.o - need to use .a extension to make jai's #foreign_lib happy
+# BUILD libc.a - need to use .a extension to make jai's #foreign_lib happy
 g++ -c -o $OUT/libcpp.a lib.cpp
 
 # BUILD libjai.a
