@@ -4,7 +4,6 @@ section .data
     str_prefix: db "asm: "
     len_prefix: equ $-str_prefix
     str_line_feed: db 10
-    len_line_feed: equ 1
     str_asm_did: db "asm did "
     len_asm_did: equ $-str_asm_did
     str_cpp_did: db "cpp did "
@@ -27,68 +26,75 @@ sys_write:
     ret
 
 print_line_feed:
+    ;; slightly cheaper than print_char, becuase we store LF in .data
     mov rsi,str_line_feed
-    mov rdx,len_line_feed
+    mov rdx,1
     call sys_write
     ret
 
+print_char:
+    ;; print a single char by its utf-8 codepoint
+    ; rsi - utf-8 codepoint (u8)
+    sub rsp,1
+    mov byte [rsp],sil
+    mov rsi,rsp
+    mov rdx,1
+    call sys_write
+    add rsp,1
+    ret
+
+; TODO: print any u8 - up to 3 digits
 print_single_digit:
     ; print a number in [0, 9] as char. will choke for numbers out-of-range.
     ;; caller provides:
-    ; edi - num
-    add edi,48 ; convert integer result to char
-
-    ; make some space on the stack to store our char (can probably use the
-    ;   red-zone for this instead to save some instructions)
-    sub rsp,1
-    mov byte [rsp],dil ; output digit - lower byte of edi
-    mov rsi,rsp
-    mov rdx,1 ; string length
-    call sys_write
-    add rsp,1 ; cleanup our use of the stack
+    ; esi - num (u8)
+    add esi,48 ; convert integer result to char
+    call print_char
     ret
 
 cpp_add_and_print:
-    ;; call cpp_add from our libc
-    ; first print the result with some flavor text
+    ;; call cpp_add from our libc - no params
+    ; print "asm: "
     mov rsi,str_prefix
     mov rdx,len_prefix
-    call sys_write ; write "asm: "
+    call sys_write
 
+    ; print "cpp_did "
     mov rsi,str_cpp_did
     mov rdx,len_cpp_did
-    call sys_write ; write "cpp_did "
+    call sys_write
 
-    mov edi,4
-    call print_single_digit
-
-    ; hack to print a string as chars ' + '
-    ; TODO build string on stack, instead?
-    mov edi,-16
-    call print_single_digit
-    mov edi,-5
-    call print_single_digit
-    mov edi,-16
+    ; print "4"
+    mov esi,4
     call print_single_digit
 
-    mov edi,3
+    ; print " + "
+    mov esi,32
+    call print_char
+    mov esi,43
+    call print_char
+    mov esi,32
+    call print_char
+
+    ; print "3"
+    mov esi,3
     call print_single_digit
 
-    ; hack to print a string as chars ' = '
-    ; TODO build string on stack, instead?
-    mov edi,-16
-    call print_single_digit
-    mov edi,13
-    call print_single_digit
-    mov edi,-16
-    call print_single_digit
+    ; print " = "
+    mov esi,32
+    call print_char
+    mov esi,61
+    call print_char
+    mov esi,32
+    call print_char
 
-    ; a + b
-    mov edi,4 ; param "a" (s32)
+    ; do a + b
+    mov esi,4 ; param "a" (s32)
     mov esi,3 ; param "b" (s32)
     call cpp_add
+
     ; print resulting digit
-    mov edi,eax
+    mov esi,eax
     call print_single_digit
     call print_line_feed
     ret
@@ -106,13 +112,13 @@ _start:
     call asm_add
 
     ; build a string containing the digit then print the answer
-    mov edi,eax
+    mov esi,eax
     call print_single_digit
     call print_line_feed
 
     call cpp_add_and_print
 
-    ; exit(s32 error_code)
+    ; do exit(error_code)
     mov rax,60 ; exit()
-    mov rdi,0 ; error_code - SUCCESS
+    mov edi,0 ; error_code (s32)
     syscall
