@@ -4,6 +4,10 @@ set -euo pipefail
 OUT="./build_output"
 mkdir -p $OUT
 
+# select a C++ compiler
+: ${CXX:=$(which g++)}
+echo -e "Using C++ compiler:  ${CXX}\n"
+
 ###################
 # BUILD LIBRARIES #
 ###################
@@ -11,7 +15,7 @@ mkdir -p $OUT
 nasm -f elf64 -o $OUT/libasm.a lib.asm
 
 # BUILD libc.a - need to use .a extension to make jai's #foreign_lib happy
-g++ -c -o $OUT/libcpp.a lib.cpp
+${CXX} -c -o $OUT/libcpp.a lib.cpp
 
 # BUILD libjai.a
 touch "$OUT/libjai.a" # TODO(ryan): remove after jai-linux update
@@ -26,7 +30,7 @@ nasm -f elf64 -o $OUT/main_asm.o main.asm
 ld -o $OUT/main_asm $OUT/main_asm.o $OUT/libasm.a $OUT/libcpp.a
 
 # BUILD main_c (link w/ libjai and libasm)
-g++ -static -g -o $OUT/main_cpp \
+${CXX} -static -g -o $OUT/main_cpp \
   main.cpp $OUT/libasm.a $OUT/libjai.a -lpthread
 
 # BUILD main_jai
