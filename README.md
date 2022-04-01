@@ -1,11 +1,14 @@
 # Code Interop Examples
 ```
-
-        JAI 
-      /     \ 
-     /       \
- x86_84 ——— C/C++
-
+========================
+|                      |
+|          JAI         |
+|        /     \       |
+|       /   ♥   \      |
+|      /         \     |
+|  x86_84  ———  C/C++  |
+|                      |
+========================
 ```
 
 Some simple examples that'll help you comingle your code, if you are into that kind of thing.
