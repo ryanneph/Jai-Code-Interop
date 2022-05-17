@@ -1,6 +1,6 @@
-section .data
-
 section .text
+    ; Adding the "global" statement exports this symbol so the function can be
+    ; located and linked with.
     global asm_add
 
 ; edi - a (s32)

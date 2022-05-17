@@ -10,7 +10,9 @@ section .data
     len_jai_did: equ $-str_jai_did
 
 section .text
+    ; "global _start" defines the runtime entry function.
     global _start
+    ; "extern" declares a symbol that will be provided during the linking stage.
     extern asm_add
     extern cpp_add
     extern jai_add

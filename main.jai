@@ -3,6 +3,11 @@
 //
 // External (foreign) function definitions
 //
+// #c_call informs the jai compiler that this function must abide by the standard C calling
+// convention for the current platform.
+// "#foreign <lib_name>" declares which library will provide the function as a variable accessible
+// from the current scope. The named variable must have been defined using "#foreign_library"
+// directive to be valid.
 asm_add :: (a: s32, b: s32) -> s32 #c_call #foreign libasm;
 cpp_add :: (a: s32, b: s32) -> s32 #c_call #foreign libcpp;
 
