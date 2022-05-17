@@ -39,7 +39,8 @@ build :: () {
    build_lib := false;
    build_exe := false;
 
-   args := compiler_get_command_line_arguments();
+   build_options := get_build_options();
+   args := build_options.compile_time_command_line;
    for args {
       if      !compare(it, "-build-lib")  build_lib = true;
       else if !compare(it, "-build-exe")  build_exe = true;
