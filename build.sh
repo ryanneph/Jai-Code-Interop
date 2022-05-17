@@ -31,7 +31,7 @@ ld -o $OUT/main_asm $OUT/main_asm.o $OUT/libasm.a $OUT/libcpp.a
 
 # BUILD main_c (link w/ libjai and libasm)
 ${CXX} -static -g -o $OUT/main_cpp \
-  main.cpp $OUT/libasm.a $OUT/libjai.a -lpthread
+    main.cpp $OUT/libasm.a $OUT/libjai.a -lpthread
 
 # BUILD main_jai
 jai builder.jai -- -build-exe
@@ -41,13 +41,13 @@ jai builder.jai -- -build-exe
 # RUN EXECUTABLES #
 ###################
 if [[ "${1:-}" == 'test' ]]; then
-  echo -e "\n=========================="
-  echo -e   "          TESTS           "
-  echo -e   "=========================="
-  echo -e "main_asm:"
-  $OUT/main_asm
-  echo -e "\nmain_cpp:"
-  $OUT/main_cpp
-  echo -e "\nmain_jai:"
-  $OUT/main_jai
+    echo -e "\n=========================="
+    echo -e   "          TESTS           "
+    echo -e   "=========================="
+    echo -e "main_asm:"
+    $OUT/main_asm
+    echo -e "\nmain_cpp:"
+    $OUT/main_cpp
+    echo -e "\nmain_jai:"
+    $OUT/main_jai
 fi
