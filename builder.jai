@@ -7,11 +7,11 @@ build_static_library :: () {
     static_builder_workspace := compiler_create_workspace("Static Library Builder");
 
     options := get_build_options();
-    options.output_executable_name = "libjai.a";
+    options.output_executable_name = "libjai"; // suffix '.a' added automatically
     options.output_path            = "./build_output/";
     options.output_type            = .STATIC_LIBRARY;
-    options.optimization_level     = .DEBUG;
 
+    set_optimization(*options, Optimization_Type.DEBUG);
     set_build_options(options, static_builder_workspace);
 
     add_build_file("lib.jai", static_builder_workspace);
@@ -24,8 +24,8 @@ build_executable :: () {
     options.output_executable_name = "main_jai";
     options.output_path            = "./build_output/";
     options.output_type            = .EXECUTABLE;
-    options.optimization_level     = .DEBUG;
 
+    set_optimization(*options, Optimization_Type.DEBUG);
     set_build_options(options, executable_builder_workspace);
 
     add_build_file("main.jai", executable_builder_workspace);
